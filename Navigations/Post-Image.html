@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XJ-FIX</title>
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+<!-- Header with name and navigation -->
+<header>
+<img src="../images/Blue.jpg" alt="Blue XJ" class="header-img">
+<h1>XJ-FIX</h1>
+<img src="../images/Rodger.jpg" alt="Rodger XJ" class="header-img">
+</header>
+<!-- Navigation menu with drop downs -->
+<nav>
+<ul>
+   <li>
+        <a href="../Forum-Posts.html">Forum Posts</a>
+    <ul class="dropdown">
+        <li><a href="Create-Post.html">Create Post</a></li>
+        </ul>
+    </li>
+
+<li>
+    <a href="Image-Board.html">Image Board</a>
+    <ul class="dropdown">
+        <li><a href="Post-Image.html">Post Images</a></li>
+        </ul>
+    </li>
+
+
+<li>
+     <a href="Marketplace.html">Marketplace</a>
+<ul class="dropdown">
+        <li><a href="Local.html">Local Meetup</a></li>
+        <li><a href="Shipped.html">Shipped Items</a></li>
+        </ul>
+    </li>
+
+<li><a href="Verified-Posts.html">Verified Posts</a>
+    </li>
+        <li><a href="Contact.html">Contact Us</a></li>
+</ul>
+</nav>
+<main>
+<h1>Upload Image</h1>
+<p>Upload an image to the Image Board.</p>
+<form id="image-form">
+    <ul>
+        <li>Display Name: <input type="text" id="displayName" size="30" required></li>
+        <li>Title: <input type="text" id="imageTitle" size="30" required></li>
+        <li>Image URL: <input type="text" id="imageURL" size="30" placeholder="https://i.imgur.com/FRbhSwJ.jpeg" required></li>
+    <li><input type="checkbox" id="verified"> Verified Post?</li>
+    <li><input type="submit" value="Post Image"></li>
+    </ul>
+    </form>
+</main>
+<!--Copyright -->
+<footer>
+    <p> © 2026 Ben Hald</p>
+</footer>
+
+<!-- javascript for pictures -->
+<script>
+    document.getElementById('image-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const displayName = document.getElementById('displayName').value;
+        const imageTitle = document.getElementById('imageTitle').value;
+        const imageURL = document.getElementById('imageURL').value;
+
+        // Create a new post object
+        const newPost = {
+            id: Date.now(), // Unique ID for each post
+            name: displayName,
+            title: imageTitle,
+            image: imageURL,
+            verified: document.getElementById("verified").checked
+        };
+
+        // Get existing posts from localStorage
+        let posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+        // Add the new post to the array
+        posts.push(newPost);
+
+        // Save the updated array back to localStorage
+        localStorage.setItem("posts", JSON.stringify(posts));
+
+        // Clear the form and redirect
+        document.getElementById('image-form').reset();
+        
+        // Redirect to verified posts or image board
+        if (newPost.verified) {
+            window.location.href = "./Verified-Posts.html";
+        } else {
+            window.location.href = "./Image-Board.html";
+        }
+    });
+</script>
+</body>
+</html>

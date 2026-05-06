@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XJ-FIX</title>
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+<!-- Header with name and navigation -->
+<header>
+<img src="../images/Blue.jpg" alt="Blue XJ" class="header-img">
+<h1>XJ-FIX</h1>
+<img src="../images/Rodger.jpg" alt="Rodger XJ" class="header-img">
+</header>
+<!-- Navigation menu with drop downs -->
+<nav>
+<ul>
+   <li>
+        <a href="../Forum-Posts.html">Forum Posts</a>
+    <ul class="dropdown">
+        <li><a href="Create-Post.html">Create Post</a></li>
+        </ul>
+    </li>
+
+<li>
+    <a href="Image-Board.html">Image Board</a>
+    <ul class="dropdown">
+        <li><a href="Post-Image.html">Post Images</a></li>
+        </ul>
+    </li>
+
+
+<li>
+     <a href="Marketplace.html">Marketplace</a>
+<ul class="dropdown">
+        <li><a href="Local.html">Local Meetup</a></li>
+        <li><a href="Shipped.html">Shipped Items</a></li>
+        </ul>
+    </li>
+
+<li><a href="Verified-Posts.html">Verified Posts</a>
+    </li>
+        <li><a href="Contact.html">Contact Us</a></li>
+</ul>
+</nav>
+<main>
+<h1>Make A New Post</h1>
+<form id="postForm">
+<ul>
+    <li>Display Name: <input type="text" id="displayName" size="40"></li>
+    <li>Title: <input type="text" id="postTitle" size="40"></li>
+    <li>Content: <textarea id="postContent" rows="8" cols="50"></textarea></li>
+    <li><input type="checkbox" id="verified"> Verified Post?</li>
+    </ul>
+<input type="submit">
+</form>
+</main>
+<footer>
+    <p> © 2026 Ben Hald</p>
+</footer>
+<script>
+document.getElementById("postForm").addEventListener("submit", function(e) {
+    e.preventDefault(); // stop page reload
+
+    // Get existing posts or create empty array
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+    // Build a new post object
+    const newPost = {
+        id:Date.now(),
+        name: document.getElementById("displayName").value,
+        title: document.getElementById("postTitle").value,
+        content: document.getElementById("postContent").value,
+        date: new Date().toLocaleString(),
+        type: "text",
+        verified: document.getElementById("verified").checked
+    };
+
+    // Add to array
+    posts.push(newPost);
+
+    // Save back to LocalStorage
+    localStorage.setItem("posts", JSON.stringify(posts));
+
+    // Redirect to verified posts or forum page
+    if (newPost.verified) {
+        window.location.href = "./Verified-Posts.html";
+    } else {
+        window.location.href = "../Forum-Posts.html";
+    }
+});
+</script>
+</body>
+</html>

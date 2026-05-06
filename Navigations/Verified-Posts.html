@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XJ-FIX</title>
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+<!-- Header with name and navigation -->
+<header>
+<img src="../images/Blue.jpg" alt="Blue XJ" class="header-img">
+<h1>XJ-FIX</h1>
+<img src="../images/Rodger.jpg" alt="Rodger XJ" class="header-img">
+</header>
+<!-- Navigation menu with drop downs -->
+<nav>
+<ul>
+   <li>
+        <a href="../Forum-Posts.html">Forum Posts</a>
+    <ul class="dropdown">
+        <li><a href="Create-Post.html">Create Post</a></li>
+        </ul>
+    </li>
+
+<li>
+    <a href="Image-Board.html">Image Board</a>
+    <ul class="dropdown">
+        <li><a href="Post-Image.html">Post Images</a></li>
+        </ul>
+    </li>
+
+
+<li>
+     <a href="Marketplace.html">Marketplace</a>
+<ul class="dropdown">
+        <li><a href="Local.html">Local Meetup</a></li>
+        <li><a href="Shipped.html">Shipped Items</a></li>
+        </ul>
+    </li>
+
+<li><a href="Verified-Posts.html">Verified Posts</a>
+    </li>
+        <li><a href="Contact.html">Contact Us</a></li>
+</ul>
+</nav>
+<main>
+<h1>Verified Posts</h1>
+<div id="posts"></div>
+</main>
+<footer>
+    <p> © 2026 Ben Hald</p>
+</footer>
+<script>
+let posts = JSON.parse(localStorage.getItem("posts")) || [];
+const container = document.getElementById("posts");
+
+let verifiedPosts = posts.filter(p => p.verified);
+
+if (verifiedPosts.length === 0) {
+    container.innerHTML = "<p>No verified posts yet.</p>";
+}
+
+verifiedPosts.forEach(post => {
+    const div = document.createElement("div");
+    div.classList.add("post");
+
+    // Main post HTML
+    const titleHtml = post.image ? `<h3><a href="Image-Board.html">${post.title}</a></h3>` : `<h3>${post.title}</h3>`;
+    const verifiedBadge = '<a href="Verified-Posts.html" class="verified-badge">Verified</a>';
+    div.innerHTML = `
+        ${titleHtml} ${verifiedBadge}
+        <p><strong>${post.name}</strong> — ${post.date}</p>
+        <p>${post.content}</p>
+        <button onclick="deletePost(${post.id})">Delete</button>
+        <button onclick="Reply(${post.id})">Reply</button>
+        <hr>
+        <div class="replies" id="replies-${post.id}"></div>
+    `;
+
+    // Display replies
+    if (post.replies) {
+        post.replies.forEach(reply => {
+            const replyDiv = document.createElement("div");
+            replyDiv.classList.add("reply");
+            replyDiv.innerHTML = `
+                <p><strong>${reply.name || "Anonymous"}</strong> — ${reply.date}</p>
+                <p>${reply.text}</p>
+            `;
+            div.querySelector(`#replies-${post.id}`).appendChild(replyDiv);
+        });
+    }
+
+    container.appendChild(div);
+});
+
+// DELETE POST
+function deletePost(id) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts = posts.filter(post => post.id !== id);
+    localStorage.setItem("posts", JSON.stringify(posts));
+    window.location.reload();
+}
+
+// REPLY TO POST
+function Reply(id) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let post = posts.find(p => p.id === id);
+    if (!post) return;
+
+    // Prevent multiple reply boxes
+    if (document.getElementById(`reply-form-${id}`)) return;
+
+    const replyForm = document.createElement("form");
+    replyForm.id = `reply-form-${id}`;
+    replyForm.innerHTML = `
+        <input type="text" id="reply-input-${id}" placeholder="Your Reply" required />
+        <button type="submit">Post Reply</button>
+    `;
+
+    // Insert under the correct post
+    const replyContainer = document.getElementById(`replies-${id}`);
+    replyContainer.prepend(replyForm);
+
+    replyForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const text = document.getElementById(`reply-input-${id}`).value.trim();
+        if (!text) return;
+
+        if (!post.replies) post.replies = [];
+
+        post.replies.push({
+            text: text,
+            date: new Date().toLocaleString()
+        });
+
+        localStorage.setItem("posts", JSON.stringify(posts));
+        location.reload();
+    });
+}
+</script>
+</body>
+</html>

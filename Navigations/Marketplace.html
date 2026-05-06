@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XJ-FIX</title>
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+<!-- Header with name and navigation -->
+<header>
+<img src="../images/Blue.jpg" alt="Blue XJ" class="header-img">
+<h1>XJ-FIX</h1>
+<img src="../images/Rodger.jpg" alt="Rodger XJ" class="header-img">
+</header>
+<!-- Navigation menu with drop downs -->
+<nav>
+<ul>
+   <li>
+        <a href="../Forum-Posts.html">Forum Posts</a>
+    <ul class="dropdown">
+        <li><a href="Create-Post.html">Create Post</a></li>
+        </ul>
+    </li>
+
+<li>
+    <a href="Image-Board.html">Image Board</a>
+    <ul class="dropdown">
+        <li><a href="Post-Image.html">Post Images</a></li>
+        </ul>
+    </li>
+
+
+<li>
+     <a href="Marketplace.html">Marketplace</a>
+<ul class="dropdown">
+        <li><a href="Local.html">Local Meetup</a></li>
+        <li><a href="Shipped.html">Shipped Items</a></li>
+        </ul>
+    </li>
+
+<li><a href="Verified-Posts.html">Verified Posts</a>
+    </li>
+        <li><a href="Contact.html">Contact Us</a></li>
+</ul>
+</nav>
+<main>
+<h1>Marketplace</h1>
+<h2>Post Item for Sale</h2>
+<form id="marketplaceForm">
+<ul>
+    <li>Display Name: <input type="text" id="displayName" size="40" required></li>
+    <li>Item Title: <input type="text" id="itemTitle" size="40" required></li>
+    <li>Description: <textarea id="itemDescription" rows="4" cols="50" required></textarea></li>
+    <li>Price: $<input type="number" id="itemPrice" min="0" step="0.01" required></li>
+    <li>Shipping Type:
+        <label><input type="radio" name="shipping" value="local" required> Local Meetup</label>
+        <label><input type="radio" name="shipping" value="shipped"> Shipped</label>
+    </li>
+</ul>
+<input type="submit" value="Post Item">
+</form>
+<h2>Marketplace Listings</h2>
+<div id="listings"></div>
+</main>
+<footer>
+    <p> © 2026 Ben Hald</p>
+</footer>
+<script>
+function loadListings() {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    const container = document.getElementById("listings");
+    let marketplaceItems = posts.filter(p => p.type === "marketplace");
+    
+    if (marketplaceItems.length === 0) {
+        container.innerHTML = "<p>No marketplace items yet.</p>";
+        return;
+    }
+    
+    container.innerHTML = "";
+    marketplaceItems.forEach(item => {
+        const link = item.shipping === "shipped" ? "Shipped.html" : "Local.html";
+        const div = document.createElement("div");
+        div.classList.add("marketplace-item");
+        div.innerHTML = `
+            <h3><a href="${link}">${item.title}</a></h3>
+            <p><strong>${item.name}</strong> — $${item.price}</p>
+            <p>${item.description}</p>
+            <p><strong>Type:</strong> ${item.shipping === "shipped" ? "Shipped" : "Local Meetup"}</p>
+            <button onclick="deleteItem(${item.id})">Delete</button>
+            <hr>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function deleteItem(id) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts = posts.filter(post => post.id !== id);
+    localStorage.setItem("posts", JSON.stringify(posts));
+    loadListings();
+}
+
+document.getElementById("marketplaceForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    const shipping = document.querySelector('input[name="shipping"]:checked').value;
+    
+    const newItem = {
+        id: Date.now(),
+        name: document.getElementById("displayName").value,
+        title: document.getElementById("itemTitle").value,
+        description: document.getElementById("itemDescription").value,
+        price: document.getElementById("itemPrice").value,
+        shipping: shipping,
+        type: "marketplace",
+        date: new Date().toLocaleString()
+    };
+    
+    posts.push(newItem);
+    localStorage.setItem("posts", JSON.stringify(posts));
+    document.getElementById("marketplaceForm").reset();
+    loadListings();
+    
+    if (shipping === "shipped") {
+        window.location.href = "./Shipped.html";
+    } else {
+        window.location.href = "./Local.html";
+    }
+});
+
+loadListings();
+</script>

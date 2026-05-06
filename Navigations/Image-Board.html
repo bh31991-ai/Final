@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XJ-FIX</title>
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+<!-- Header with name and navigation -->
+<header>
+<img src="../images/Blue.jpg" alt="Blue XJ" class="header-img">
+<h1>XJ-FIX</h1>
+<img src="../images/Rodger.jpg" alt="Rodger XJ" class="header-img">
+</header>
+<!-- Navigation menu with drop downs -->
+<nav>
+<ul>
+   <li>
+        <a href="../Forum-Posts.html">Forum Posts</a>
+    <ul class="dropdown">
+        <li><a href="Create-Post.html">Create Post</a></li>
+        </ul>
+    </li>
+
+<li>
+    <a href="Image-Board.html">Image Board</a>
+    <ul class="dropdown">
+        <li><a href="Post-Image.html">Post Images</a></li>
+        </ul>
+    </li>
+
+
+<li>
+     <a href="Marketplace.html">Marketplace</a>
+<ul class="dropdown">
+        <li><a href="Local.html">Local Meetup</a></li>
+        <li><a href="Shipped.html">Shipped Items</a></li>
+        </ul>
+    </li>
+
+<li><a href="Verified-Posts.html">Verified Posts</a>
+    </li>
+        <li><a href="Contact.html">Contact Us</a></li>
+</ul>
+</nav>
+<main>
+<h1>Image Board</h1>
+<p>Welcome to the Image Board! Here you can view and post images.</p>
+<div id="images" class="image-container"></div>
+</main>
+<script>
+let posts = JSON.parse(localStorage.getItem("posts")) || [];
+const container = document.getElementById("images");
+
+// Show all posts that contain an image URL
+let imagePosts = posts.filter(p => p.image);
+
+if (imagePosts.length === 0) {
+    container.innerHTML = '<p class="no-images">No images yet.</p>';
+}
+
+imagePosts.forEach(post => {
+    const div = document.createElement("div");
+    div.classList.add("image-post");
+
+    let imageSrc = post.image;
+    if (post.image.startsWith('https://imgur.com/')) {
+        const id = post.image.split('/').pop();
+        imageSrc = `https://i.imgur.com/${id}`;
+    }
+
+    div.innerHTML = `
+        <img src="${imageSrc}" class="posted-image" alt="${post.title}" title="Open on Imgur">
+        <div class="post-content">
+            <h3>${post.title}</h3>
+            ${post.verified ? '<a href="Verified-Posts.html" class="verified-badge">Verified</a>' : ''}
+            <p><strong>${post.name}</strong></p>
+            <button onclick="deletePost(${post.id})">Delete</button>
+            <button onclick="Reply(${post.id})">Reply</button>
+            <hr>
+            <div class="replies" id="replies-${post.id}"></div>
+        </div>
+    `;
+
+    // Display replies
+    if (post.replies) {
+        post.replies.forEach(reply => {
+            const replyDiv = document.createElement("div");
+            replyDiv.classList.add("reply");
+            replyDiv.innerHTML = `
+                <p><strong>${reply.name || "Anonymous"}</strong> — ${reply.date}</p>
+                <p>${reply.text}</p>
+            `;
+            div.querySelector(`#replies-${post.id}`).appendChild(replyDiv);
+        });
+    }
+
+    const img = div.querySelector('.posted-image');
+    img.addEventListener('click', () => {
+        const id = post.image.split('/').pop().split('.')[0];
+        window.open(`https://imgur.com/${id}`, '_blank');
+    });
+
+    container.appendChild(div);
+});
+
+// DELETE POST
+function deletePost(id) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts = posts.filter(post => post.id !== id);
+    localStorage.setItem("posts", JSON.stringify(posts));
+    window.location.reload();
+}
+
+// REPLY TO POST
+function Reply(id) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let post = posts.find(p => p.id === id);
+    if (!post) return;
+
+    // Prevent multiple reply boxes
+    if (document.getElementById(`reply-form-${id}`)) return;
+
+    const replyForm = document.createElement("form");
+    replyForm.id = `reply-form-${id}`;
+    replyForm.innerHTML = `
+        <input type="text" id="reply-input-${id}" placeholder="Your Reply" required />
+        <button type="submit">Post Reply</button>
+    `;
+
+    // Insert under the correct post
+    const replyContainer = document.getElementById(`replies-${id}`);
+    replyContainer.prepend(replyForm);
+
+    replyForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const text = document.getElementById(`reply-input-${id}`).value.trim();
+        if (!text) return;
+
+        if (!post.replies) post.replies = [];
+
+        post.replies.push({
+            text: text,
+            date: new Date().toLocaleString()
+        });
+
+        localStorage.setItem("posts", JSON.stringify(posts));
+        location.reload();
+    });
+}
+</script>
+
+<footer>
+    <p> © 2026 Ben Hald</p>
+</footer>
+</body>
+</html>
